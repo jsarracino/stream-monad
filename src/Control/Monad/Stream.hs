@@ -27,6 +27,7 @@
 module Control.Monad.Stream ( Stream, suspended, runStream, toList ) where
 
 import Control.Monad
+-- import Control.Monad.Fail
 import Control.Applicative
 import Control.Monad.Logic
 import Data.Foldable
@@ -69,8 +70,6 @@ instance Monad Stream
   Cons x xs >>= f = f x `mplus` suspended (xs >>= f)
   Susp xs   >>= f = suspended (xs >>= f)
 
-  fail _ = Nil
-
 instance MonadPlus Stream
  where
   mzero = Nil
@@ -82,6 +81,9 @@ instance MonadPlus Stream
   Susp xs   `mplus` Single y  = Cons y xs
   Susp xs   `mplus` Cons y ys = Cons y (xs `mplus` ys)
   Susp xs   `mplus` Susp ys   = suspended (xs `mplus` ys)
+
+instance MonadFail Stream where
+  fail _ = mzero
 
 instance Applicative Stream where
   pure  = Single
